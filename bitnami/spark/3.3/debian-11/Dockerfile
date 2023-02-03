@@ -21,9 +21,10 @@ ENV HOME="/" \
 COPY prebuildfs /
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # Install required system packages and dependencies
-RUN set ex && \
+RUN set -ex && \
     install_packages ca-certificates curl libbz2-1.0 libcom-err2 libcrypt1 libffi7 libgcc-s1 libgssapi-krb5-2 libk5crypto3 libkeyutils1 libkrb5-3 libkrb5support0 liblzma5 libncursesw6 libnsl2 libreadline8 libsqlite3-0 libssl1.1 libstdc++6 libtinfo6 libtirpc3 procps zlib1g
-RUN mkdir -p /tmp/bitnami/pkg/cache/ && \
+RUN set -ex & \
+    mkdir -p /tmp/bitnami/pkg/cache/ && \
     cd /tmp/bitnami/pkg/cache/ && \
     COMPONENTS=( \
       "python-3.10.9-1-linux-${OS_ARCH}-debian-11" \
@@ -84,9 +85,9 @@ RUN set -ex && \
       rm -rf "${JAR}"{,.md5} ; \
     done
 
-RUN set ex && \
-    apt-get autoremove --purge -y curl && \
-    apt-get update && apt-get upgrade -y && \
+RUN set -ex && \
+    apt-get update && \
+    apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 WORKDIR /opt/bitnami/spark

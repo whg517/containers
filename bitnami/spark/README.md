@@ -17,5 +17,5 @@
 ## build
 
 ```bash
-docker buildx build --platform linux/amd64 -t docker-private.zncdata.net/bitnami/spark:v0.0.1-spark3.3.1 .
+docker buildx build --platform linux/amd64 -t docker-private.zncdata.net/bitnami/spark:v0.0.2-spark3.3.1 .
 ```
