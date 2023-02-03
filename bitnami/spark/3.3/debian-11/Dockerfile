@@ -40,10 +40,7 @@ RUN mkdir -p /tmp/bitnami/pkg/cache/ && \
       tar -zxf "${COMPONENT}.tar.gz" -C /opt/bitnami --strip-components=2 --no-same-owner --wildcards '*/files' && \
       rm -rf "${COMPONENT}".tar.gz{,.sha256} ; \
     done
-RUN set ex && \
-    apt-get autoremove --purge -y curl && \
-    apt-get update && apt-get upgrade -y && \
-    apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
 RUN chmod g+rwX /opt/bitnami
 RUN mkdir /.local && chmod g+rwX /.local
 
@@ -72,7 +69,25 @@ RUN set -ex && \
       "https://repo1.maven.org/maven2/org/wildfly/openssl/wildfly-openssl/2.2.5.Final/wildfly-openssl-2.2.5.Final.jar" \
       "https://downloads.bitnami.com/files/stacksmith/spark-3.3.1-6-linux-amd64-debian-11.tar.gz" \
       "https://downloads.bitnami.com/files/stacksmith/spark-3.3.1-6-linux-arm64-debian-11.tar.gz" \
-    ) 
+    ) && \
+    for URL in "${EXTRA_JARS_URL}"; do \
+      JAR=`echo "${URL}" | awk -F "/" '{print $NF}'` && \
+      if [ ! -f ${JAR} ]; then \
+        curl -SsLf "${URL}" -O ; \
+        curl -SsLf "${URL}.md5" -O ; \
+      fi && \
+      if [ `md5sum "${JAR}" | awk '{print $1}'` != `cat ${JAR}.md5` ]; then \
+        echo "Check ${JAR} md5 failure!"; \
+        break ; \
+      fi && \
+      cp "${JAR}" "${SPARK_HOME}/jar" && \ 
+      rm -rf "${JAR}"{,.md5} ; \
+    done
+
+RUN set ex && \
+    apt-get autoremove --purge -y curl && \
+    apt-get update && apt-get upgrade -y && \
+    apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 WORKDIR /opt/bitnami/spark
 USER 1001
