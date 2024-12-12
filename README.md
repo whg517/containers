@@ -1,3 +1,1 @@
 # containers
-
-ref: bitnami
